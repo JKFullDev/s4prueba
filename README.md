@@ -1,49 +1,41 @@
-# JUSTIFICACIÓN DE MÉTODOS
+# JUSTIFICACIÓN TÉCNICA Y DE MÉTODOS
 
-En este documento detallo algunas de las decisiones que he tomado para el desarrollo de la aplicación.
+En este documento explico los métodos y funciones que he utilizado en mi proyecto de Gestión de Alumnos, justificando por qué son necesarios para trabajar con la estructura de documentos agrupados en MongoDB.
 
-### 1. ESCRITURA MASIVA CON `MongoDB\Driver\BulkWrite`
-Para las operaciones de importación, inserción, actualización y borrado, he utilizado la clase `BulkWrite`.
+### 1. CONEXIÓN Y GESTIÓN DEL MOTOR (`db.php`)
+Para establecer el canal de comunicación con el servidor, utilizo la clase principal del driver nativo:
+`$manager = new MongoDB\Driver\Manager($uri);`
+* **Justificación:** He elegido el driver nativo por su velocidad. El Manager es el objeto que mantiene la conexión abierta y me permite lanzar todas las consultas que mi aplicación necesita.
 
-* **Código:** `$bulk = new MongoDB\Driver\BulkWrite;`
-* **Justificación:** Esta clase permite agrupar múltiples operaciones de escritura en un solo "paquete". En lugar de realizar una conexión y petición al servidor por cada alumno, el `BulkWrite` acumula las operaciones en memoria y las envía de una sola vez.
+### 2. PROCESAMIENTO DE ARCHIVOS EXTERNOS (`importar.php`)
+Para la migración de datos, he utilizado métodos específicos de lectura:
+* **CSV:** Utilizo `fopen($fichero_csv, "r")` para abrir el canal de lectura y `fgetcsv($gestor, 1000, ";")` para parsear las líneas. He configurado el punto y coma como delimitador porque así es como vienen estructurados mis datos de origen.
+* **XML:** Uso `simplexml_load_file($fichero_xml)` porque es la forma más directa de convertir la estructura de etiquetas en un objeto que puedo recorrer con un bucle `foreach`.
 
-### 2. EJECUCIÓN DE ESCRITURA (`executeBulkWrite`)
-* **Código:** `$manager->executeBulkWrite($namespace, $bulk);`
-* **Justificación:** Es el método encargado de "disparar" el paquete de operaciones preparado anteriormente hacia el servidor MongoDB. Se utiliza el `$namespace` (formato `base_datos.coleccion`) para indicar exactamente dónde se tienen que aplicar los cambios.
+### 3. OPERACIONES DE ESCRITURA EFICIENTES (`BulkWrite`)
+Tanto en la importación como en el borrado total, utilizo:
+`$bulk = new MongoDB\Driver\BulkWrite;`
+* **Justificación:** En mi proyecto, la eficiencia es clave. En lugar de enviar órdenes una a una, utilizo este objeto como un contenedor donde acumulo todas las inserciones o borrados y los ejecuto de golpe con `$manager->executeBulkWrite($namespace, $bulk);`.
 
-### 3. IDENTIFICADORES ÚNICOS (`MongoDB\BSON\ObjectId`)
-* **Código:** `['_id' => new MongoDB\BSON\ObjectId($id)]`
-* **Justificación:** MongoDB utiliza objetos BSON en lugar de IDs numéricos autoincrementales simples. Entonces para buscar o modificar un documento específico, es **necesaria** esta clase porque si pasáramos el ID como una simple cadena de texto (`string`), MongoDB no encontraría el documento porque los tipos de datos no coincidirían.
+### 4. BÚSQUEDA Y FILTRADO POR ID (`ObjectId`)
+Dado que MongoDB usa identificadores únicos complejos, utilizo:
+`$filtro = ['_id' => new MongoDB\BSON\ObjectId($mongoId)];`
+`$query = new MongoDB\Driver\Query($filtro);`
+* **Justificación:** Para recuperar un alumno en el formulario de edición, necesito localizar su documento padre. Como el ID de la URL es un texto, debo convertirlo en un objeto `ObjectId` para que Mongo lo reconozca. Luego, ejecuto la consulta mediante `$cursor = $manager->executeQuery($namespace, $query);`.
 
-### 4. CONSULTAS Y FILTRADO (`Query` y `executeQuery`)
-* **Código:**
-    ```php
-    $query = new MongoDB\Driver\Query($filter, $options);
-    $cursor = $manager->executeQuery($namespace, $query);
-    ```
-* **Justificación:** La clase `Query` encapsula tanto el filtro de búsqueda (el "WHERE" de SQL) como las opciones de consulta (como `sort` para ordenar). Al separarlo de la ejecución, permite reutilizar la consulta. `executeQuery` devuelve un cursor iterable que permite recorrer los resultados uno a uno.
+### 5. MANIPULACIÓN DE ARRAYS EN MONGODB (`guardar.php`)
+Al estar los alumnos dentro de un array en el documento de la Fila, he usado lógica avanzada de actualización:
+* **Inserción/Push:** `$update = ['$push' => ['Alumnos' => $alumno]];`
+* **Upsert:** `$bulk->update($filtro, $update, ['upsert' => true]);`
+* **Justificación:** El operador `$push` me permite añadir un alumno al final del array sin tocar a los que ya estaban. Con el parámetro `upsert`, me aseguro de que si la fila no existe todavía en la base de datos, se cree automáticamente en ese mismo instante.
 
-### 5. ACTUALIZACIÓN DE CAMPOS (`$set`)
-* **Código:** `$update = ['$set' => $documento];`
-* **Justificación:** En la operación de edición, utilizo el operador atómico `$set`. Esto indica a MongoDB que debe **modificar** los campos especificados dentro del documento existente, sin sobrescribir el documento completo ni borrar campos que no estemos enviando.
+### 6. GESTIÓN DE RESULTADOS (`toArray`)
+En varios puntos del proyecto (como en `borrar.php` o `guardar.php`), necesito trabajar con los datos que me devuelve una consulta antes de tomar una decisión:
+`$res = $cursor->toArray();`
+* **Justificación:** El cursor de Mongo es un iterador. Al convertirlo a un array de PHP con `toArray()`, puedo acceder a los datos de forma inmediata por su índice (como `$res[0]`) y manipular los arrays de alumnos con mayor facilidad en memoria.
 
-### 6. LECTURA DE ARCHIVOS (CSV, JSON, XML)
-Para la integración de datos he utilizado las funciones nativas de PHP para cada formato:
-
-* **CSV (`fopen`, `fgetcsv`):**
-    * **Justificación:** `fgetcsv` lee el archivo línea por línea, parseando automáticamente los separadores (comas). Es preferible a leer todo el archivo en memoria con `file_get_contents` porque maneja mejor archivos grandes.
-* **JSON (`file_get_contents`, `json_decode`):**
-    * **Justificación:** Al ser un formato ligero, leo el contenido completo y uso `json_decode($json, true)`. El segundo parámetro `true` es para convertir los objetos JSON en **arrays asociativos**.
-* **XML (`simplexml_load_file`):**
-    * **Justificación:** Esta función convierte la estructura del XML en un objeto PHP iterable, ayudando al acceso a los nodos `<alumno>` y sus hijos sin tener que parsear el texto manualmente.
-
-### 7. GESTIÓN DE ERRORES (`try...catch`)
-* **Código:**
-    ```php
-    catch (MongoDB\Driver\Exception\Exception $e) { ... }
-    ```
-* **Justificación:** Como estamos trabajamos con conexiones a bases de datos externas, hay muchas posibilidades de error. Por esto es mejor capturar el error del driver de Mongo para evitar que la página muestre el error al usuario entre otras razones.
-<br><br>
----
-<i>Hecho por Juan Carlos Alonso Hernando</i>
+### 7. LÓGICA DE ACTUALIZACIÓN COMPLEJA
+Cuando muevo a un alumno de fila o edito sus datos, utilizo:
+`$queryOld = new MongoDB\Driver\Query(['_id' => new MongoDB\BSON\ObjectId($mongoId)]);`
+`$resOld = $manager->executeQuery($namespace, $queryOld)->toArray();`
+* **Justificación:** Al trabajar con documentos agrupados, para modificar a un alumno primero tengo que "traerme" la fila completa a PHP, realizar el cambio en el array y luego volver a guardarlo. Este proceso garantiza que no se pierdan datos del resto de alumnos que comparten la misma fila.
