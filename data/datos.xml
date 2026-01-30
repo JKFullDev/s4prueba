@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<clase>
+    <fila>
+        <numero>7</numero>
+        <alumno>
+            <nombre>Pedro</nombre>
+            <apellidos>Ramírez</apellidos>
+            <sexo>H</sexo>
+            <es_profe_sexi>false</es_profe_sexi>
+        </alumno>
+    </fila>
+    <fila>
+        <numero>8</numero>
+        <alumno>
+            <nombre>Sofía</nombre>
+            <apellidos>Torres</apellidos>
+            <sexo>M</sexo>
+            <es_profe_sexi>true</es_profe_sexi>
+        </alumno>
+    </fila>
+</clase>

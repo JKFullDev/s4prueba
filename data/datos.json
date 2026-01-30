@@ -1,0 +1,20 @@
+[
+    {
+        "numero": 5,
+        "alumno": {
+            "nombre": "Roberto",
+            "apellidos": "Fernández",
+            "sexo": "H",
+            "es_profe_sexi": false
+        }
+    },
+    {
+        "numero": 6,
+        "alumno": {
+            "nombre": "Elena",
+            "apellidos": "Gómez",
+            "sexo": "M",
+            "es_profe_sexi": true
+        }
+    }
+]

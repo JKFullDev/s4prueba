@@ -1,0 +1,152 @@
+/* style.css
+   Aquí guardo todos los estilos de la web
+*/
+
+/* Estilos generales para el cuerpo de la página */
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: #f9f9f9;
+    color: #333;
+    padding: 20px;
+    max-width: 900px;
+    margin: 0 auto;
+}
+
+/* Títulos con una rayita debajo */
+h1 {
+    color: #444;
+    border-bottom: 2px solid #ddd;
+    padding-bottom: 10px;
+    margin-bottom: 20px;
+}
+
+/* --- ESTILOS DE LA TABLA (INDEX) --- */
+table {
+    width: 100%;
+    border-collapse: collapse;
+    /* Quita los espacios entre celdas */
+    margin-top: 20px;
+    background-color: white;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+th,
+td {
+    border: 1px solid #ddd;
+    padding: 12px;
+    text-align: left;
+}
+
+/* Encabezado de la tabla en azul */
+th {
+    background-color: #007bff;
+    color: white;
+}
+
+/* Filas alternas para que sea más fácil leer */
+tr:nth-child(even) {
+    background-color: #f2f2f2;
+}
+
+/* Efecto visual al pasar el ratón por encima */
+tr:hover {
+    background-color: #e9ecef;
+}
+
+/* --- ESTILOS DEL FORMULARIO --- */
+form {
+    background-color: white;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+label {
+    display: block;
+    margin-top: 15px;
+    font-weight: bold;
+    color: #555;
+}
+
+/* Inputs que ocupan todo el ancho */
+input[type="text"],
+input[type="number"],
+select {
+    width: 100%;
+    padding: 10px;
+    margin-top: 5px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    box-sizing: border-box;
+}
+
+/* --- BOTONES --- */
+/* Estilo base para todos los botones */
+button,
+.btn {
+    display: inline-block;
+    padding: 10px 15px;
+    text-decoration: none;
+    color: white;
+    border-radius: 4px;
+    border: none;
+    cursor: pointer;
+    font-size: 14px;
+    transition: background 0.3s;
+}
+
+/* Botón Añadir (Verde) */
+.btn-add {
+    background-color: #28a745;
+}
+
+.btn-add:hover {
+    background-color: #218838;
+}
+
+/* Botón Editar (Azul) */
+.btn-edit {
+    background-color: #007bff;
+}
+
+.btn-edit:hover {
+    background-color: #0069d9;
+}
+
+/* Botón Borrar (Rojo) */
+.btn-del {
+    background-color: #dc3545;
+}
+
+.btn-del:hover {
+    background-color: #c82333;
+}
+
+/* Botón grande de guardar en el formulario */
+button[type="submit"] {
+    background-color: #007bff;
+    margin-top: 20px;
+    width: 100%;
+    font-size: 16px;
+    font-weight: bold;
+}
+
+button[type="submit"]:hover {
+    background-color: #0056b3;
+}
+
+/* Enlaces secundarios */
+a {
+    color: #666;
+    text-decoration: none;
+}
+
+a:hover {
+    text-decoration: underline;
+}
+
+/* Clase para boolen profe_sexy */
+.sexy {
+    color: #e83e8c;
+    font-weight: bold;
+}
