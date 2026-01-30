@@ -1,15 +1,14 @@
 <?php
 // importar.php
-// Este script es el encargado de la migración de datos (ETL).
-// Lee los 3 archivos originales (CSV, JSON, XML) y los vuelca en Mongo.
-// PERO OJO: No guardo alumno a alumno. Primero los agrupo en memoria por su número de Fila
-// y luego inserto un documento por cada fila con todos sus alumnos dentro.
+// Este script se encarga de leer los 3 archivos y organizarlos.
+// En lugar de guardar uno a uno. Primero los agrupo en PHP por 'Fila'
+// y luego creo un documento por cada fila con todos sus alumnos dentro.
 
 require_once 'db.php';
 
-// Preparo un "BulkWrite". Es como un carrito de la compra donde voy apilando
-// todas las operaciones de inserción para enviarlas de golpe al final.
-// Esto es muchísimo más rápido y eficiente que conectar 100 veces para 100 alumnos.
+// Preparo un "BulkWrite". Es como un carrito de la compra donde voy
+// metiendo todas las operaciones que quiero hacer de golpe
+// Es mas eficiente que ir una a una
 $bulk = new MongoDB\Driver\BulkWrite;
 
 // Este array será mi almacén temporal.
