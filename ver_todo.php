@@ -1,8 +1,5 @@
 <?php
 // ver_todo.php
-// Este script muestra exactamente lo que hay guardado en la base de datos.
-// Ya que no podemos usar Mongo Compass
-
 require_once 'db.php';
 
 $query = new MongoDB\Driver\Query([]);

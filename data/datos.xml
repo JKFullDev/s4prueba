@@ -1,21 +1,73 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<clase>
-    <fila>
-        <numero>7</numero>
-        <alumno>
-            <nombre>Pedro</nombre>
-            <apellidos>Ramírez</apellidos>
-            <sexo>H</sexo>
-            <es_profe_sexi>false</es_profe_sexi>
-        </alumno>
-    </fila>
-    <fila>
-        <numero>8</numero>
-        <alumno>
-            <nombre>Sofía</nombre>
-            <apellidos>Torres</apellidos>
-            <sexo>M</sexo>
-            <es_profe_sexi>true</es_profe_sexi>
-        </alumno>
-    </fila>
-</clase>
+<personas>
+  <persona>
+    <nombre>Noe</nombre>
+    <apellidos>Nguema Mifumu</apellidos>
+    <fila>1</fila>
+    <sexo>H</sexo>
+    <es_profe_sexi>0</es_profe_sexi>
+  </persona>
+  <persona>
+    <nombre>Javier</nombre>
+    <apellidos>Piñero</apellidos>
+    <fila>3</fila>
+    <sexo>H</sexo>
+    <es_profe_sexi>0</es_profe_sexi>
+  </persona>
+  <persona>
+    <nombre>MOHAMMADPARSA</nombre>
+    <apellidos>POUR SHAHROODI</apellidos>
+    <fila>3</fila>
+    <sexo>H</sexo>
+    <es_profe_sexi>0</es_profe_sexi>
+  </persona>
+  <persona>
+    <nombre>David</nombre>
+    <apellidos>Simbaña Tasiguano</apellidos>
+    <fila>1</fila>
+    <sexo>H</sexo>
+    <es_profe_sexi>0</es_profe_sexi>
+  </persona>
+  <persona>
+    <nombre>Uma Jimena</nombre>
+    <apellidos>Spotorno Valdez</apellidos>
+    <fila>3</fila>
+    <sexo>M</sexo>
+    <es_profe_sexi>0</es_profe_sexi>
+  </persona>
+  <persona>
+    <nombre>Leonardo Xavier</nombre>
+    <apellidos>Tandalla Pozo</apellidos>
+    <fila>4</fila>
+    <sexo>H</sexo>
+    <es_profe_sexi>0</es_profe_sexi>
+  </persona>
+  <persona>
+    <nombre>Jiarong</nombre>
+    <apellidos>Tang</apellidos>
+    <fila>3</fila>
+    <sexo>M</sexo>
+    <es_profe_sexi>0</es_profe_sexi>
+  </persona>
+  <persona>
+    <nombre>Johan Fabian</nombre>
+    <apellidos>Villamarin Lagos</apellidos>
+    <fila>4</fila>
+    <sexo>H</sexo>
+    <es_profe_sexi>0</es_profe_sexi>
+  </persona>
+  <persona>
+    <nombre>Juanita</nombre>
+    <apellidos>Zuluaga Acosta</apellidos>
+    <fila>3</fila>
+    <sexo>M</sexo>
+    <es_profe_sexi>0</es_profe_sexi>
+  </persona>
+  <persona>
+    <nombre>Jorge</nombre>
+    <apellidos>Moreno Cepeda</apellidos>
+    <fila>0</fila>
+    <sexo>H</sexo>
+    <es_profe_sexi>1</es_profe_sexi>
+  </persona>
+</personas>

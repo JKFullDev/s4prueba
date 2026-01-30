@@ -1,20 +1,51 @@
 [
-    {
-        "numero": 5,
-        "alumno": {
-            "nombre": "Roberto",
-            "apellidos": "Fernández",
-            "sexo": "H",
-            "es_profe_sexi": false
-        }
-    },
-    {
-        "numero": 6,
-        "alumno": {
-            "nombre": "Elena",
-            "apellidos": "Gómez",
-            "sexo": "M",
-            "es_profe_sexi": true
-        }
-    }
+  {
+    "nombre": "Adrian",
+    "apellidos": "Da Costa Dallago",
+    "fila": 5,
+    "sexo": "H",
+    "es_profe_sexi": 0
+  },
+  {
+    "nombre": "pedro",
+    "apellidos": "garcia martos",
+    "fila": 6,
+    "sexo": "H",
+    "es_profe_sexi": 0
+  },
+  {
+    "nombre": "Valerio",
+    "apellidos": "García Torralba",
+    "fila": 6,
+    "sexo": "H",
+    "es_profe_sexi": 0
+  },
+  {
+    "nombre": "Tonny Francisco",
+    "apellidos": "Gómez Suárez",
+    "fila": 7,
+    "sexo": "H",
+    "es_profe_sexi": 0
+  },
+  {
+    "nombre": "Karolina Diana",
+    "apellidos": "Kapics Smak",
+    "fila": 6,
+    "sexo": "M",
+    "es_profe_sexi": 0
+  },
+  {
+    "nombre": "Ruben",
+    "apellidos": "Marco Sanchez",
+    "fila": 5,
+    "sexo": "H",
+    "es_profe_sexi": 0
+  },
+  {
+    "nombre": "Pedro",
+    "apellidos": "Naranjo Díaz",
+    "fila": 3,
+    "sexo": "H",
+    "es_profe_sexi": 0
+  }
 ]

@@ -1,133 +1,121 @@
 <?php
 // importar.php
-// Este script es el encargado de leer los ficheros externos (CSV, JSON, XML)
-// y meterlos todos de golpe en nuestra base de datos Mongo
+// Este script se encarga de leer los 3 archivos y organizarlos.
+// En lugar de guardar uno a uno. Primero los agrupo en PHP por 'Fila'
+// y luego creo un documento por cada fila con todos sus alumnos dentro.
 
 require_once 'db.php';
 
-// Preparo un "BulkWrite". Esto es como un carrito de la compra donde voy metiendo
-// todas las operaciones (inserts) para enviarlas al servidor de una sola vez.
-// Es mucho más eficiente que ir insertando uno a uno.
+// Preparo un "BulkWrite". Es como un carrito de la compra donde voy
+// metiendo todas las operaciones que quiero hacer de golpe
+// Es mas eficiente que ir una a una
 $bulk = new MongoDB\Driver\BulkWrite;
 
-// Variables para controlar si hemos encontrado algo
+// Aquí voy a ir guardando los alumnos temporalmente:
+// $filas_agrupadas[1] = [alumno1, alumno2...]
+// $filas_agrupadas[2] = [alumno3...]
+$filas_agrupadas = [];
 $hay_datos = false;
-$contador = 0;
 
-// === 1. LEER EL CSV ===
-// Busco el archivo dentro de la carpeta 'data' 
+// --- 1. LEER EL CSV (El separador es punto y coma ';') ---
+// Busco el archivo en la carpeta data
 $fichero_csv = 'data/datos.csv';
-
 if (file_exists($fichero_csv)) {
-    // Abro el archivo en modo lectura
     if (($gestor = fopen($fichero_csv, "r")) !== FALSE) {
+        // Me salto la primera línea porque son los títulos (cabeceras)
+        fgetcsv($gestor, 1000, ";");
 
-        // Voy leyendo línea a línea. El separador es la coma
-        while (($datos = fgetcsv($gestor, 1000, ",")) !== FALSE) {
+        while (($datos = fgetcsv($gestor, 1000, ";")) !== FALSE) {
+            // El CSV viene así: NOMBRE;APELLIDOS;FILA;SEXO;ES_PROFE_SEXI
+            // Ojo: Fila está en la posición 2
+            $numFila = (int)$datos[2];
 
-            // Los CSV a veces traen el booleano como texto "true" o "1".
-            // Aquí lo convierto a un booleano de verdad (true/false) para que Mongo no se líe
-            $esSexy = (strtolower($datos[4]) == 'true' || $datos[4] == '1');
+            // Arreglo el booleano del profe sexy
+            $esSexy = ($datos[4] == '1' || strtolower($datos[4]) == 'true');
 
-            // Construyo el array con la estructura exacta que pide el enunciado
-            // 'Alumno' es un array dentro de otro (documento embebido)
-            $doc = [
-                'Numero' => (int)$datos[0], // Fuerzo que sea numero entero
-                'Alumno' => [
-                    'Nombre' => $datos[1],
-                    'Apellidos' => $datos[2],
-                    'Sexo' => $datos[3],
-                    'es_profe_sexi' => $esSexy
-                ]
+            // Lo añado a mi array temporal en su fila correspondiente
+            $filas_agrupadas[$numFila][] = [
+                'Nombre' => $datos[0],
+                'Apellidos' => $datos[1],
+                'Sexo' => $datos[3],
+                'es_profe_sexi' => $esSexy
             ];
-
-            // Añado este documento a mi "carrito" de inserciones
-            $bulk->insert($doc);
             $hay_datos = true;
-            $contador++;
         }
-        fclose($gestor); // Cierro el archivo, siempre hay que ser limpio.
+        fclose($gestor);
         echo "¡CSV procesado correctamente!<br>";
     }
-} else {
-    echo "¡No es posible encontrar el archivo CSV en la carpeta 'data'!<br>";
 }
 
-// === 2. LEER EL JSON ===
+// --- 2. LEER EL JSON ---
 $fichero_json = 'data/datos.json';
-
 if (file_exists($fichero_json)) {
-    // Leo todo el contenido del fichero de golpe
     $contenido = file_get_contents($fichero_json);
-    // Decodifico el texto JSON a un array de PHP
     $json = json_decode($contenido, true);
-
     if ($json) {
         foreach ($json as $item) {
-            // El JSON ya viene con la estructura bonita, así que mapeo directo
-            $doc = [
-                'Numero' => (int)$item['numero'],
-                'Alumno' => [
-                    'Nombre' => $item['alumno']['nombre'],
-                    'Apellidos' => $item['alumno']['apellidos'],
-                    'Sexo' => $item['alumno']['sexo'],
-                    // Me aseguro de que esto sea booleano
-                    'es_profe_sexi' => (bool)$item['alumno']['es_profe_sexi']
-                ]
+            $numFila = (int)$item['fila'];
+
+            // Añado al grupo de su fila
+            $filas_agrupadas[$numFila][] = [
+                'Nombre' => $item['nombre'],
+                'Apellidos' => $item['apellidos'],
+                'Sexo' => $item['sexo'],
+                'es_profe_sexi' => (bool)$item['es_profe_sexi']
             ];
-            $bulk->insert($doc);
             $hay_datos = true;
-            $contador++;
         }
         echo "¡JSON procesado correctamente!<br>";
     }
-} else {
-    echo "¡No es posible encontrar el archivo JSON en la carpeta 'data'!<br>";
 }
 
-// === 3. LEER EL XML ===
+// --- 3. LEER EL XML ---
+// Ojo: El XML que has pasado tiene etiquetas <personas> y dentro <persona>
 $fichero_xml = 'data/datos.xml';
-
 if (file_exists($fichero_xml)) {
-    // Cargo el XML como un objeto simple
     $xml = simplexml_load_file($fichero_xml);
+    foreach ($xml->persona as $p) {
+        $numFila = (int)$p->fila;
+        // Casteo a string primero para compararlo bien
+        $esSexy = ((string)$p->es_profe_sexi == '1' || strtolower((string)$p->es_profe_sexi) == 'true');
 
-    // Recorro cada etiqueta <fila>
-    foreach ($xml->fila as $fila) {
-        // En XML todo es texto, así que compruebo manualmente si pone "true" o "1"
-        $esSexy = ((string)$fila->alumno->es_profe_sexi === 'true' || (string)$fila->alumno->es_profe_sexi === '1');
-
-        $doc = [
-            // Los casting (int), (string) son vitales aquí porque simplexml devuelve objetos raros
-            'Numero' => (int)$fila->numero,
-            'Alumno' => [
-                'Nombre' => (string)$fila->alumno->nombre,
-                'Apellidos' => (string)$fila->alumno->apellidos,
-                'Sexo' => (string)$fila->alumno->sexo,
-                'es_profe_sexi' => $esSexy
-            ]
+        $filas_agrupadas[$numFila][] = [
+            'Nombre' => (string)$p->nombre,
+            'Apellidos' => (string)$p->apellidos,
+            'Sexo' => (string)$p->sexo,
+            'es_profe_sexi' => $esSexy
         ];
-        $bulk->insert($doc);
         $hay_datos = true;
-        $contador++;
     }
     echo "¡XML procesado correctamente!<br>";
-} else {
-    echo "¡No es posible encontrar el archivo XML en la carpeta 'data'!<br>";
 }
 
-// === GUARDAR TODO EN MONGO ===
+// --- PASO FINAL: GUARDAR EN MONGO ---
 if ($hay_datos) {
-    try {
-        // Ejecuto el BulkWrite. Aquí es donde realmente se guardan los datos
-        $result = $manager->executeBulkWrite($namespace, $bulk);
+    // Primero borro todo lo viejo para no duplicar las filas si le doy dos veces
+    $bulk->delete([], ['limit' => 0]);
 
-        echo "<h2>¡Importación completada!</h2>";
-        echo "Se han insertado un total de <strong>$contador</strong> alumnos en la base de datos.<br>";
-        echo "<br><a href='index.php'>VOLVER AL LISTADO</a>";
-    } catch (MongoDB\Driver\Exception\Exception $e) {
-        echo "¡Error fatal! | " . $e->getMessage();
+    // Recorro mi array agrupado y creo UN documento por cada Fila
+    foreach ($filas_agrupadas as $numeroFila => $listaAlumnos) {
+        // Esta es la estructura nueva que pide el profe:
+        // Documento = { "Fila": 1, "Alumnos": [ ... todos los de la fila ... ] }
+        $documentoFila = [
+            'Fila' => $numeroFila,
+            'Alumnos' => $listaAlumnos
+        ];
+        // Añado al paquete de envío
+        $bulk->insert($documentoFila);
+    }
+
+    try {
+        // Ejecuto todo de golpe
+        $manager->executeBulkWrite($namespace, $bulk);
+        echo "<h2>¡Importación Agrupada Completada!</h2>";
+        echo "Se han creado documentos para " . count($filas_agrupadas) . " filas distintas.<br>";
+        echo "<br><a href='index.php'>Ir al Listado</a>";
+    } catch (Exception $e) {
+        die("Ha habido un error guardando en Mongo: " . $e->getMessage());
     }
 } else {
-    echo "¡No se han encontrado datos en ningún archivo. Revisa la carpeta 'data'!";
+    echo "No he encontrado datos en la carpeta data. Revisa que estén los archivos.";
 }

@@ -5,10 +5,10 @@
 try {
     $usuario  = "jorge";  
     $password = "1234"; 
-    $host     = "192.168.108.100"; // IP del servidor del aula
+    $host     = "192.168.108.100"; 
     $puerto   = "27017"; 
-    $auth_db  = "admin";           // ---------------- 
-    $dbName   = "gestion_alumnos"; // Nombre de la base de datos a usar
+    $auth_db  = "videojuegos_db";           // ---------------- 
+    $dbName   = "videojuegos_db_juancarlos"; // Nombre de la base de datos a usar
     
 
     // Construyo la direccion completa para conectarme
