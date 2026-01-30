@@ -1,14 +1,13 @@
 <?php
 // formulario.php
-// Este archivo es multiusos: sirve para dar de alta (si no hay ID) o para editar (si hay ID).
+// Este archivo es multiusos: sirve para crear (si no hay ID) o para editar (si hay ID).
 
 require_once 'db.php';
 
-// Recojo el ID de la URL. Si no viene nada, asumo que es null.
+// Recojo el ID de la URL. Si no viene nada, asumo que es null
 $id = $_GET['id'] ?? null;
 
-// Inicializo las variables vacías. Esto es importante para que el HTML no falle
-// cuando estoy creando un alumno nuevo (y por tanto no hay datos previos).
+// Inicializo las variables vacías
 $datos = [
     'Fila' => '', 
     'Nombre' => '', 
@@ -18,20 +17,20 @@ $datos = [
 ];
 $fila_antigua = ''; // Variable auxiliar para saber si el usuario le cambia de fila
 
-// Si me han pasado un ID, significa que estamos EDITANDO. Toca buscar los datos.
+// Si me han pasado un ID, significa que estamos editando asique hay que buscar los datos
 if ($id) {
-    // Desgloso mi ID compuesto (mongoId-indice) usando el guion como separador
+    // Desgloso mi IDcompuesto (mongoId-indice) usando el guion como separador
     $partes = explode('-', $id);
     $mongoId = $partes[0];     // El ID real del documento en Mongo
     $indice = (int)$partes[1]; // La posición del alumno en el array (0, 1, 2...)
 
-    // Busco el documento COMPLETO de la fila usando su _id
-    // Recuerda: Hay que convertir el string ID a un ObjectId de Mongo
+    // Busco el documento completo de la fila usando su _id
+    // Hay que convertir el string ID a un ObjectId de Mongo
     $filtro = ['_id' => new MongoDB\BSON\ObjectId($mongoId)];
     $query = new MongoDB\Driver\Query($filtro);
     $cursor = $manager->executeQuery($namespace, $query);
     
-    // Cojo el primer resultado (debería ser único porque busco por ID)
+    // Cojo el primer resultado (debe ser unico porque busco por ID)
     $resultado = current($cursor->toArray());
 
     if ($resultado) {
@@ -42,14 +41,14 @@ if ($id) {
         if (isset($lista[$indice])) {
             $alumnoData = (array)$lista[$indice];
             
-            // Relleno las variables del formulario con lo que he encontrado
+            // Relleno las variables del formulario con los datos que he encontrado
             $datos['Fila'] = $filaDoc['Fila']; 
             $datos['Nombre'] = $alumnoData['Nombre'];
             $datos['Apellidos'] = $alumnoData['Apellidos'];
             $datos['Sexo'] = $alumnoData['Sexo'];
             $datos['es_profe_sexi'] = $alumnoData['es_profe_sexi'];
             
-            // Me guardo la fila original. Esto es vital para 'guardar.php'
+            // Me guardo la fila original. Esto es muy importante para 'guardar.php'
             $fila_antigua = $filaDoc['Fila']; 
         }
     }

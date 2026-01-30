@@ -1,14 +1,14 @@
 <?php
 // borrar_todo.php
-// Este script es el "botón del pánico". Borra TODOS los datos de la colección.
+// Este script Borra todos los datos de la colección
 
 require_once 'db.php';
 
 try {
     $bulk = new MongoDB\Driver\BulkWrite;
     
-    // Le paso un filtro vacío [] para que seleccione todos los documentos.
-    // El 'limit' => 0 significa "sin límite", o sea, bórralos todos.
+    // Le paso un filtro vacío [] para que seleccione todos los documentos
+    // El 'limit' => 0 significa "sin límite", es decir, borralos todos
     $bulk->delete([], ['limit' => 0]);
     
     // Ejecuto la orden de borrado masivo

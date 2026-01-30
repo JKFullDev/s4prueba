@@ -1,13 +1,13 @@
 <?php
 // borrar.php
-// Script sencillo para eliminar un alumno.
-// Como están dentro de arrays, tengo que leer la fila, quitarlo del array y volver a guardar.
+// Script para eliminar un alumno
+// Como están dentro de arrays, tengo que leer la fila, quitarlo del array y volver a guardar
 
 require_once 'db.php';
 
-// Recojo el ID compuesto de la URL
-$idCompuesto = $_GET['id'] ?? null;
+// Recojo el ID compuesto de la URL. Si no viene nada, asumo que es null
 
+$idCompuesto = $_GET['id'] ?? null;
 if ($idCompuesto) {
     // Saco las coordenadas: ID del documento y posición en el array
     $partes = explode('-', $idCompuesto);
@@ -29,10 +29,10 @@ if ($idCompuesto) {
             unset($alumnos[$indice]);
             
             // 3. Reorganizo los índices del array.
-            // Esto es crucial: Si borro el 2, quiero que el 3 pase a ser el 2.
+            // Esto es importante porque si borro el 2, quiero que el 3 pase a ser el 2.
             $alumnos = array_values($alumnos); 
 
-            // 4. Actualizo el documento en Mongo con el array ya limpio
+            // 4. Actualizo el documento en Mongo con el array limpio
             $bulk = new MongoDB\Driver\BulkWrite;
             $bulk->update(
                 ['_id' => new MongoDB\BSON\ObjectId($mongoId)],

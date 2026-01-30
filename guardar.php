@@ -1,14 +1,14 @@
 <?php
 // guardar.php
-// Este archivo es el "cerebro". Recibe los datos del formulario y decide qué hacer.
-// Tiene que manejar tres situaciones: Nuevo Alumno, Editar Alumno, y Mover Alumno de Fila.
+// Este archivo recibe los datos del formulario y decide qué hacer
+// Tiene que manejar tres situaciones: Nuevo Alumno, Editar Alumno, y Mover Alumno de Fila
 
 require_once 'db.php';
 
 // Solo proceso si los datos vienen por POST (si alguien entra por la URL no hago nada)
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     
-    // Recojo los datos básicos
+    // Recojo los datos basicos
     $idCompuesto = $_POST['id'] ?? ''; 
     $filaNueva = (int)$_POST['fila'];
     // Recupero la fila antigua para comparar
@@ -28,9 +28,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     // CASO 1: ES UN ALUMNO NUEVO (No hay ID)
     // ----------------------------------------------------------------------
     if (empty($idCompuesto)) {
-        // Busco si ya existe un documento para esa fila.
-        // Si existe, uso $push para añadir al alumno al final del array 'Alumnos'.
-        // Si NO existe, la opción 'upsert' => true le dice a Mongo que cree el documento nuevo.
+        // Busco si ya existe un documento para esa fila
+        // Si existe, uso $push para añadir al alumno al final del array 'Alumnos'
+        // Si NO existe, la opción 'upsert' => true le dice a Mongo que cree el documento nuevo
         $filtro = ['Fila' => $filaNueva];
         $update = ['$push' => ['Alumnos' => $alumno]];
         $bulk->update($filtro, $update, ['upsert' => true]);
@@ -44,7 +44,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $mongoId = $partes[0];
         $indice = (int)$partes[1];
 
-        // SUB-CASO A: EL USUARIO LO HA MOVIDO DE FILA
+        // CASO B: EL USUARIO LO HA MOVIDO DE FILA
         // (La fila nueva es distinta a la antigua)
         if ($filaAntigua !== null && $filaNueva != $filaAntigua) {
             
@@ -66,8 +66,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 ['$set' => ['Alumnos' => $arrAlumnosOld]]
             );
 
-            // PASO 2: Meterlo en la fila nueva.
-            // Uso otro BulkWrite para no mezclar operaciones y asegurar el orden.
+            // PASO 2: Meterlo en la fila nueva
+            // Uso otro BulkWrite para no mezclar operaciones y asegurar el orden
             $bulk2 = new MongoDB\Driver\BulkWrite;
             $bulk2->update(
                 ['Fila' => $filaNueva],
@@ -77,7 +77,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $manager->executeBulkWrite($namespace, $bulk2);
 
         } 
-        // SUB-CASO B: SE QUEDA EN LA MISMA FILA
+        // CASO B: SE QUEDA EN LA MISMA FILA
         // (Solo ha cambiado el nombre, o si es sexy o no)
         else {
             // Leo el documento actual para tener el array fresco

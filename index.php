@@ -1,6 +1,6 @@
 <?php
 // index.php
-// Esta es la página principal. Muestra la tabla con todos los alumnos.
+// Esta es la página principal. Muestra la tabla con todos los alumnos
 // Como están agrupados por filas, la lógica de visualización es un poco especial (doble bucle).
 
 require_once 'db.php';
@@ -16,16 +16,16 @@ $cursor = $manager->executeQuery($namespace, $query);
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>Listado de Alumnos por Fila</title>
+    <title>Listado de Alumnos</title>
     <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
-    <h1>Gestión de Alumnos (Vista Agrupada)</h1>
+    <h1>Listado de Alumnos</h1>
 
     <div style="margin-bottom: 20px;">
         <a href="formulario.php" class="btn btn-add">Añadir Nuevo Alumno</a>
-        <a href="importar.php" class="btn">Restaurar Datos Originales</a>
-        <a href="borrar_todo.php" class="btn btn-del" onclick="return confirm('¡CUIDADO! ¿Seguro que quieres borrar TODA la base de datos?');">Borrar Todo</a>
+        <a href="importar.php" class="btn">Importar Alumnos</a>
+        <a href="borrar_todo.php" class="btn btn-del" onclick="return confirm('¡QUIETO PARAO! ¿Seguro que quieres borrar TODA la base de datos?');">Borrar Todo</a>
     </div>
 
     <table>
@@ -35,7 +35,7 @@ $cursor = $manager->executeQuery($namespace, $query);
                 <th>Nombre</th>
                 <th>Apellidos</th>
                 <th>Sexo</th>
-                <th>¿Sexy?</th>
+                <th>¿Es el profe sexy?</th>
                 <th>Acciones</th>
             </tr>
         </thead>
@@ -57,11 +57,10 @@ $cursor = $manager->executeQuery($namespace, $query);
                     <?php 
                         $alumno = (array)$alumno; 
                         
-                        // EL TRUCO DEL ALMENDRUCO:
                         // Para editar a un alumno concreto, necesito saber 2 cosas:
                         // 1. En qué documento está (idMongo)
                         // 2. En qué posición del array está (indice)
-                        // Me invento un ID compuesto uniéndolos con un guion. Luego lo separaré.
+                        // Me invento un ID compuesto uniéndolos con un guion
                         $idCompuesto = $idMongo . '-' . $indice;
                     ?>
                     <tr>
@@ -71,7 +70,7 @@ $cursor = $manager->executeQuery($namespace, $query);
                         <td><?= $alumno['Sexo'] ?></td>
                         <td>
                             <?php if ($alumno['es_profe_sexi']): ?>
-                                <span class="sexy">SÍ 🔥</span>
+                                <span class="sexy">SÍ</span>
                             <?php else: ?>
                                 No
                             <?php endif; ?>
